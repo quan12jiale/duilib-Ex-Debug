@@ -5,7 +5,7 @@
 #include <atlcomcli.h>
 //class CActiveXCtrl;
 //class CActiveXUI;
-#include "../Utils/wmp.tlh"
+#include "Utils/wmp.tlh"
 
 namespace DuiLib
 {

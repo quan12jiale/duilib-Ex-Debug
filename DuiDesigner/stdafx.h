@@ -49,7 +49,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-#ifdef _DEBUG
+/*#ifdef _DEBUG
 #   ifdef _UNICODE
 #       pragma comment(lib, "..\\Lib\\DuiLib_ud.lib")
 #   else
@@ -61,7 +61,7 @@
 #   else
 #       pragma comment(lib, "..\\Lib\\DuiLib.lib")
 #   endif
-#endif
+#endif*/
 
 #pragma comment(lib,"Dbghelp.lib")
 

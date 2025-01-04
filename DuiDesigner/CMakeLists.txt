@@ -19,12 +19,13 @@ set_target_properties(DuiDesigner PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
 
 #used for mfc project
 add_definitions(-D_AFXDLL)
-set_target_properties(DuiDesigner PROPERTIES COMPILE_DEFINITIONS _BIND_TO_CURRENT_CRT_VERSION,_BIND_TO_CURRENT_MFC_VERSION
+set_target_properties(DuiDesigner PROPERTIES ## COMPILE_DEFINITIONS _BIND_TO_CURRENT_CRT_VERSION,_BIND_TO_CURRENT_MFC_VERSION
                                   LINK_FLAGS "/ENTRY:\"wWinMainCRTStartup\"")
+add_dependencies(DuiDesigner duilib)
 target_link_libraries(DuiDesigner duilib)
 
 
-add_custom_command(TARGET DuiDesigner POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-  ${PROJECT_BINARY_DIR}/bin/DuiDesigner.exe ${PROJECT_SOURCE_DIR}/bin/DuiDesigner.exe)
+#add_custom_command(TARGET DuiDesigner POST_BUILD
+#  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#  ${PROJECT_BINARY_DIR}/bin/DuiDesigner.exe ${PROJECT_SOURCE_DIR}/bin/DuiDesigner.exe)
 
