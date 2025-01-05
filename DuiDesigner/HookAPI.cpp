@@ -14,7 +14,7 @@ HOOKSTRUCT CHookAPI::m_GetImageExHookInfo={0};
 
 CHookAPI::CHookAPI(void)
 {
-#ifdef _DEBUG
+/*#ifdef _DEBUG
 	CreateFileAPI=(pfnCreateFile)HookAPI(_T("KERNEL32.dll"),LPCSTR("CreateFileW"),(FARPROC)Hook_CreateFile,GetModuleHandle(_T("Duilib_ud.dll")));
 	EnableCreateFile(true);
 
@@ -32,7 +32,15 @@ CHookAPI::CHookAPI(void)
 
 	HookAPI(_T("Duilib_u.dll"),LPCSTR("?GetImageEx@CPaintManagerUI@DuiLib@@QAEPAUtagTImageInfo@2@PB_W0K@Z"),(FARPROC)Hook_GetImageEx,m_GetImageExHookInfo);
 	EnableGetImageEx(true);
-#endif
+#endif*/
+	CreateFileAPI = (pfnCreateFile)HookAPI(_T("KERNEL32.dll"), LPCSTR("CreateFileW"), (FARPROC)Hook_CreateFile, GetModuleHandle(_T("Duilib.dll")));
+	EnableCreateFile(true);
+
+	HookAPI(_T("Duilib.dll"), LPCSTR("?Invalidate@CPaintManagerUI@DuiLib@@QAEXAAUtagRECT@@@Z"), (FARPROC)Hook_Invalidate, m_InvalidateHookInfo);
+	EnableInvalidate(true);
+
+	HookAPI(_T("Duilib.dll"), LPCSTR("?GetImageEx@CPaintManagerUI@DuiLib@@QAEPBUtagTImageInfo@2@PB_W0K@Z"), (FARPROC)Hook_GetImageEx, m_GetImageExHookInfo);
+	EnableGetImageEx(true);
 }
 
 CHookAPI::~CHookAPI(void)
@@ -50,7 +58,11 @@ FARPROC CHookAPI::HookAPI(LPCTSTR pstrDllName,LPCSTR pstrFuncName,FARPROC pfnNew
 		ImageDirectoryEntryToData(hModCaller,TRUE,IMAGE_DIRECTORY_ENTRY_IMPORT,&size);
 	if(pImportDesc==NULL)
 		return NULL;
-	HMODULE hModule=LoadLibrary(pstrDllName);
+	//HMODULE hModule=LoadLibrary(pstrDllName);
+	HMODULE hModule = GetModuleHandle(pstrDllName);
+	if (!hModule) {
+		return NULL;
+	}
 	//纪录函数地址
 	FARPROC pfnOriginFunc=GetProcAddress(hModule,pstrFuncName);
 
@@ -60,7 +72,7 @@ FARPROC CHookAPI::HookAPI(LPCTSTR pstrDllName,LPCSTR pstrFuncName,FARPROC pfnNew
 	for(;pImportDesc->Name;pImportDesc++)
 	{
 		LPSTR pszDllName=(LPSTR)((PBYTE)hModCaller+pImportDesc->Name);
-		if(lstrcmpiA(pszDllName,pstrDest)==0)
+		if(pstrDest && lstrcmpiA(pszDllName,pstrDest)==0)
 			break;
 	}
 	if(pImportDesc->Name==NULL)
@@ -88,10 +100,14 @@ FARPROC CHookAPI::HookAPI(LPCTSTR pstrDllName,LPCSTR pstrFuncName,FARPROC pfnNew
 
 BOOL CHookAPI::HookAPI(LPCTSTR pstrDllName,LPCSTR pstrFuncName,FARPROC pfnNewFunc,HOOKSTRUCT& HookInfo)
 {
-	HMODULE hModule=LoadLibrary(pstrDllName);
+	//HMODULE hModule=LoadLibrary(pstrDllName);
+	HMODULE hModule = GetModuleHandle(pstrDllName);
+	if (!hModule) {
+		return FALSE;
+	}
 	//纪录函数地址
 	HookInfo.pfnFuncAddr=GetProcAddress(hModule,pstrFuncName);
-	FreeLibrary(hModule);
+	//FreeLibrary(hModule);
 	if(HookInfo.pfnFuncAddr==NULL)
 		return FALSE;
 	//备份原函数的前5个字节，一般的WIN32 API以__stdcall声明的API理论上都可以这样进行HOOK
